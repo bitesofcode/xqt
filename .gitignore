@@ -1,0 +1,5 @@
+/.build
+/src/build
+/src/projex_xqt.egg-info
+/src/dist
+*.pyc
