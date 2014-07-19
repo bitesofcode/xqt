@@ -13,7 +13,7 @@ Right now, the supported wrappers are:
 
 _Note, while this project is licensed under LGPL, you will be subject to the
 license agreement of your underlying Qt framework.  PySide is LGPL.  PyQt4
-however is GPL unless purchased, thus rendering this project GPL as well._
+however is GPL unless purchased, thus rendering this project GPL if used with PyQt4._
 
 Installation
 -----------------------
