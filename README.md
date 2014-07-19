@@ -42,29 +42,29 @@ etc.
 
 _Use with PyQt4_
 
-    ```python
-    >>> import os
-    >>> os.environ['XQT_WRAPPER'] = 'PyQt4'
-    
-    >>> from xqt import QtCore, QtGui
-    >>> print QtCore
-    <module 'PyQt4.QtCore' from 'PyQt4.QtCore.pyd'>
-    >>> print QtCore.Signal
-    <type 'PyQt4.QtCore.pyqtSignal'>
-    ```
+```python
+>>> import os
+>>> os.environ['XQT_WRAPPER'] = 'PyQt4'
+
+>>> from xqt import QtCore, QtGui
+>>> print QtCore
+<module 'PyQt4.QtCore' from 'PyQt4.QtCore.pyd'>
+>>> print QtCore.Signal
+<type 'PyQt4.QtCore.pyqtSignal'>
+```
 
 _Use with PySide_
 
-    ```python
-    >>> import os
-    >>> os.environ['XQT_WRAPPER'] = 'PySide'
-    
-    >>> from xqt import QtCore, QtGui
-    >>> print QtCore
-    <module 'PySide.QtCore' from 'PySide\QtCore.pyd'>
-    >>> print QtCore.Signal
-    <type 'PySide.QtCore.Signal'>
-    ```
+```python
+>>> import os
+>>> os.environ['XQT_WRAPPER'] = 'PySide'
+
+>>> from xqt import QtCore, QtGui
+>>> print QtCore
+<module 'PySide.QtCore' from 'PySide\QtCore.pyd'>
+>>> print QtCore.Signal
+<type 'PySide.QtCore.Signal'>
+```
 
 The `projexui` library is written on top of this architecture, so it can
 be used with either PyQt4, or PySide.  For more examples on usage, you can
