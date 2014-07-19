@@ -41,6 +41,7 @@ This will handle mapping differences in naming conventions, variable handlers,
 etc.
 
 _Use with PyQt4_
+
     >>> import os
     >>> os.environ['XQT_WRAPPER'] = 'PyQt4'
     
@@ -51,6 +52,7 @@ _Use with PyQt4_
     <type 'PyQt4.QtCore.pyqtSignal'>
 
 _Use with PySide_
+
     >>> import os
     >>> os.environ['XQT_WRAPPER'] = 'PySide'
     
