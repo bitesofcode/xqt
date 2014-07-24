@@ -110,6 +110,13 @@ def unwrapNone(value):
     """
     return value
 
+class XThreadNone(object):
+    def __nonzero__(self):
+        return False
+    
+    def __eq__(self, other):
+        return id(other) == id(self) or other is None
+
 # setup the globals that are going to be wrapped
 if package:
     sys.modules[package].createMap(globals())
@@ -123,33 +130,5 @@ if package:
     sys.modules['xqt.QtNetwork']  = QtNetwork
     sys.modules['xqt.QtXml']      = QtXml
     
-    # update the base threading class for additional tracking and control
-    # options
-    class XQThread(QtCore.QThread):
-        ThreadCount = 0
-        ThreadingEnabled = True
-        
-        def __init__(self, *args):
-            super(XQThread, self).__init__(*args)
-            
-            XQThread.ThreadCount += 1
-        
-        def __del__(self):
-            XQThread.ThreadCount -= 1
-
-        def start(self):
-            if XQThread.ThreadingEnabled:
-                super(XQThread, self).start()
-            else:
-                log.warning('Threading blocked.')
-
-    class ThreadNone(object):
-        def __nonzero__(self):
-            return False
-        
-        def __eq__(self, other):
-            return id(other) == id(self) or other is None
-
-    QtCore.QThread = XQThread
-    QtCore.THREADSAFE_NONE = ThreadNone()
+    QtCore.THREADSAFE_NONE = XThreadNone()
 
