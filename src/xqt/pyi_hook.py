@@ -41,3 +41,10 @@ elif wrapper == 'PyQt4':
         hiddenimports.remove('xqt.pyside_wrapper')
     except ValueError:
         pass
+
+# include the binaries
+from xqt import QtCore
+filepath = os.path.dirname(QtCore.__file__)
+pluginpath = os.path.join(filepath, 'plugins', 'imageformats')
+datas.append((os.path.join(pluginpath, '*.dll'), 'plugins/imageformats'))
+
