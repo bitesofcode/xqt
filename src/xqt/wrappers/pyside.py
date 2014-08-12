@@ -11,31 +11,62 @@ __license__         = 'LGPL'
 __maintainer__      = 'Projex Software'
 __email__           = 'team@projexsoftware.com'
 
+# requires at least the QtCore module
+import PySide
 import logging
 import re
 import sys
-from xml.etree import ElementTree
 import xml.parsers.expat
 
-from PySide import QtCore,\
-                   QtGui,\
-                   QtUiTools,\
-                   QtXml,\
-                   QtNetwork,\
-                   QtWebKit
+from PySide import QtCore, QtGui, QtUiTools
+from xml.etree import ElementTree
 
-logger = logging.getLogger(__name__)
-try:
-    from PySide import Qsci
-except ImportError:
-    logger.debug('PySide.Qsci is not installed.')
-    Qsci = None
+from ..lazyload import lazy_import
 
-try:
-    from PySide import QtDesigner
-except ImportError:
-    logger.debug('PySide.QtDesigner is not installed.')
-    QtDesigner = None
+log = logging.getLogger(__name__)
+
+class XThreadNone(object):
+    """
+    PySide cannot handle emitting None across threads without crashing.
+    This variable can be used in place of None.
+    
+    :usage      |class A(QtCore.QObject):
+                |   valueChanged = QtCore.Signal('QVariant')
+                |   def setValue(self, value):
+                |       self._value = value
+                |       emitter = value if value is not None else QtCore.THREADSAFE_NONE
+                |       self.valueChanged.emit(emitter)
+                |
+                |class B(QtCore.QObject):
+                |   def __init__(self, a):
+                |       super(B, self).__init__()
+                |       a.valueChanged.connect(self.showValue)
+                |   def showValue(self, value):
+                |       if value == None:
+                |           print 'value does equal none'
+                |       if value is None:
+                |           print 'value unfortunately not IS none'
+                |
+                |a = A()
+                |b = B()
+                |t = QtCore.QThread()
+                |a.moveToThread(t)
+                |t.start()
+                |a.setValue(None)   # will crash if not using THREADSAFE_NONE
+    """
+    def __nonzero__(self):
+        return False
+    
+    def __repr__(self):
+        return 'None'
+    
+    def __str__(self):
+        return 'None'
+    
+    def __eq__(self, other):
+        return id(other) == id(self) or other is None
+
+#----------------------------------------------------------------------
 
 def SIGNAL(signal):
     match = re.match(r'^(?P<method>\w+)\(?(?P<args>[^\)]*)\)?$', str(signal))
@@ -49,74 +80,6 @@ def SIGNAL(signal):
     
     new_signal = '%s(%s)' % (method, args)
     return QtCore.SIGNAL(new_signal)
-
-class NonePlaceholder(object):
-    pass
-
-NONE_PLACEHOLDER = NonePlaceholder()
-
-def wrapNone(value):
-    """
-    Handles any custom wrapping that needs to happen for Qt to process
-    None values properly (PySide issue)
-    
-    :param      value | <variant>
-    
-    :return     <variant>
-    """
-    if value is None:
-        return NONE_PLACEHOLDER
-    return value
-
-def unwrapNone(value):
-    """
-    Handles any custom wrapping that needs to happen for Qt to process
-    None values properly (PySide issue)
-    
-    :param      value | <variant>
-    
-    :return     <variant>
-    """
-    if value is NONE_PLACEHOLDER:
-        return None
-    return value
-
-#----------------------------------------------------------
-
-class PySideDialog(QtGui.QDialog):
-    def exec_(self, *args):
-        """
-        Ensure the dialogs are properly centered - doesn't seem to happen
-        automatically with PySide.
-        
-        :return     <int> result
-        """
-        parent = self.parent()
-        if parent and parent.window():
-            point = parent.window().geometry().center()
-            point.setX(point.x() - self.width() / 2.0)
-            point.setY(point.y() - self.height() / 2.0)
-            self.move(point)
-        
-        return super(PySideDialog, self).exec_(*args)
-    
-    def show(self, *args):
-        """
-        Ensure the dialogs are properly centered - doesn't seem to happen
-        automatically with PySide.
-        
-        :return     <int> result
-        """
-        parent = self.parent()
-        if parent and parent.window():
-            point = parent.window().geometry().center()
-            point.setX(point.x() - self.width() / 2.0)
-            point.setY(point.y() - self.height() / 2.0)
-            self.move(point)
-        
-        return super(PySideDialog, self).show(*args)
-    
-QtGui.QDialog = PySideDialog
 
 #----------------------------------------------------------
 
@@ -220,7 +183,7 @@ class Uic(object):
         try:
             xui = ElementTree.parse(filename)
         except xml.parsers.expat.ExpatError:
-            logger.exception('Could not load file: %s' % filename)
+            log.exception('Could not load file: %s' % filename)
             return None
         
         loader = UiLoader(baseinstance)
@@ -248,7 +211,7 @@ class Uic(object):
                     module = sys.modules[header]
                     cls = getattr(module, clsname)
                 except (ImportError, KeyError, AttributeError):
-                    logger.error('Could not load %s.%s' % (header, clsname))
+                    log.error('Could not load %s.%s' % (header, clsname))
                     continue
                 
                 loader.dynamicWidgets[clsname] = cls
@@ -261,41 +224,33 @@ class Uic(object):
 
 #----------------------------------------------------------------------
 
-def createMap(qt):
-    # create a UiLoader first otherwise in PySide 1.2.2 it crahses
-    import PySide
-    # fix a hack in 1.2.2
-    if PySide.__version__ == '1.2.2':
-        ui_loader = UiLoader(None)
+def init(scope):
+    """
+    Initialize the xqt system with the PySide wrapper for the Qt system.
     
-    # helpers
-    qt['uic']       = Uic()
-    qt['PyObject']  = object
+    :param      scope | <dict>
+    """
+    # define wrapper compatibility symbols
+    QtCore.THREADSAFE_NONE = XThreadNone()
     
-    # modules
-    qt['QtCore']        = QtCore
-    qt['QtDesigner']    = QtDesigner
-    qt['QtGui']         = QtGui
-    qt['Qsci']          = Qsci
-    qt['QtWebKit']      = QtWebKit
-    qt['QtNetwork']     = QtNetwork
-    qt['QtXml']         = QtXml
+    # define the importable symbols
+    scope['QtCore'] = QtCore
+    scope['QtGui'] = QtGui
+    scope['QtWebKit'] = lazy_import('PySide.QtWebKit')
+    scope['QtNetwork'] = lazy_import('PySide.QtNetwork')
+    scope['QtXml'] = lazy_import('PySide.QtXml')
+    scope['QtDesigner'] = lazy_import('PySide.QtDesigner')
+    scope['Qsci'] = lazy_import('PySide.QSsci')
     
-    # variables
-    qt['SIGNAL']   = SIGNAL
-    qt['SLOT']     = QtCore.SLOT
-    qt['Signal']   = QtCore.Signal
-    qt['Slot']     = QtCore.Slot
-    qt['Property'] = QtCore.Property
-    qt['wrapNone'] = wrapNone
-    qt['unwrapNone'] = unwrapNone
-    qt['QStringList'] = list
+    scope['uic'] = Uic()
+    scope['rcc_exe'] = 'pyside-rcc.exe'
     
-    qt['rcc_exe'] = 'pyside-rcc.exe'
+    # map overrides
+    #QtCore.SIGNAL = SIGNAL
     
-    # map additional options
+    # map shared core properties
     QtCore.QDate.toPyDate = lambda x: x.toPython()
     QtCore.QDateTime.toPyDateTime = lambda x: x.toPython()
     QtCore.QTime.toPyTime = lambda x: x.toPython()
-
+    QtCore.QStringList = list
 

@@ -27,108 +27,44 @@ __revision__ = 0
 __version_info__   = (__major__, __minor__, __revision__)
 __version__        = '%s.%s' % (__major__, __minor__)
 
-#----------------------------------------------------------------------
-
-__all__ = [# helpers
-           'rcc_exe',
-           'uic',
-           'wrapVariant',
-           'unwrapVariant',
-           'PyObject',
-           'QT_WRAPPER',
-            
-           # modules
-           'QtCore',
-           'QtGui',
-           'QtXml',
-           'Qsci',
-           'QtWebKit',
-           'QtDesigner',
-           'QtNetwork',
-           
-           # variables
-           'Signal',
-           'Slot',
-           'Property',
-           'QStringList']
-
-import logging
 import os
 import sys
 
-rcc_exe = None
-log = logging.getLogger(__name__)
-
-# define the globals we're going to use
-glbls = globals()
-for name in __all__:
-    glbls[name] = None
+from . import errors
+from .lazyload import lazy_import
 
 QT_WRAPPER = os.environ.get('XQT_WRAPPER', 'PyQt4')
 
-# load the specific wrapper from the environment
-package = 'xqt.%s_wrapper' % QT_WRAPPER.lower()
-__import__(package)
+#----------------------------------------------------------------------
 
-#----------------------------------------------------------
+from .common import *
 
-# define global methods
-def wrapVariant(variant):
-    if hasattr(QtCore, 'QVariant'):
-        return QtCore.QVariant(variant)
-    return variant
+#----------------------------------------------------------------------
 
-def unwrapVariant(variant, default=None):
-    if type(variant).__name__ == 'QVariant':
-        if not variant.isNull():
-            return variant.toPyObject()
-        return default
-    
-    if variant is None:
-        return default
-    return variant
+# ensure the Qt system can be loaded properly
+__wrapper__ = 'xqt.wrappers.{0}'.format(QT_WRAPPER.lower())
+__import__(__wrapper__)
 
-def wrapNone(value):
-    """
-    Handles any custom wrapping that needs to happen for Qt to process
-    None values properly (PySide issue)
-    
-    :param      value | <variant>
-    
-    :return     <variant>
-    """
-    return value
+scope = globals()
+sys.modules[__wrapper__].init(scope)
 
-def unwrapNone(value):
-    """
-    Handles any custom wrapping that needs to happen for Qt to process
-    None values properly (PySide issue)
-    
-    :param      value | <variant>
-    
-    :return     <variant>
-    """
-    return value
+# backwards compatibility
+wrapVariant = scope['py2q']
+unwrapVariant = scope['q2py']
 
-class XThreadNone(object):
-    def __nonzero__(self):
-        return False
-    
-    def __eq__(self, other):
-        return id(other) == id(self) or other is None
+QtCore = scope['QtCore']
 
-# setup the globals that are going to be wrapped
-if package:
-    sys.modules[package].createMap(globals())
-    
-    # define the modules for importing
-    sys.modules['xqt.QtCore']     = QtCore
-    sys.modules['xqt.QtDesigner'] = QtDesigner
-    sys.modules['xqt.QtGui']      = QtGui
-    sys.modules['xqt.Qsci']       = Qsci
-    sys.modules['xqt.QtWebKit']   = QtWebKit
-    sys.modules['xqt.QtNetwork']  = QtNetwork
-    sys.modules['xqt.QtXml']      = QtXml
-    
-    QtCore.THREADSAFE_NONE = XThreadNone()
+SIGNAL = QtCore.SIGNAL
+SLOT = QtCore.SLOT
+Signal = QtCore.Signal
+Slot = QtCore.Slot
+Property = QtCore.Property
 
+# update the modules with the global wrappers
+sys.modules['xqt.QtCore'] = scope['QtCore']
+sys.modules['xqt.QtGui'] = scope['QtGui']
+sys.modules['xqt.QtXml'] = scope['QtXml']
+sys.modules['xqt.QtNetwork'] = scope['QtNetwork']
+sys.modules['xqt.QtDesigner'] = scope['QtDesigner']
+sys.modules['xqt.Qsci'] = scope['Qsci']
+sys.modules['xqt.QtWebKit'] = scope['QtWebKit']
