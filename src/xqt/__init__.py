@@ -61,10 +61,15 @@ Slot = QtCore.Slot
 Property = QtCore.Property
 
 # update the modules with the global wrappers
-sys.modules['xqt.QtCore'] = scope['QtCore']
-sys.modules['xqt.QtGui'] = scope['QtGui']
-sys.modules['xqt.QtXml'] = scope['QtXml']
-sys.modules['xqt.QtNetwork'] = scope['QtNetwork']
-sys.modules['xqt.QtDesigner'] = scope['QtDesigner']
-sys.modules['xqt.Qsci'] = scope['Qsci']
-sys.modules['xqt.QtWebKit'] = scope['QtWebKit']
+for mod in ('QtCore',
+            'QtGui',
+            'QtXml',
+            'QtNetwork',
+            'QtDesigner',
+            'Qsci',
+            'QtWebKit'):
+    try:
+        sys.modules['xqt.{0}'.format(mod)] = scope[mod]
+    except KeyError:
+        pass
+

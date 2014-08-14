@@ -68,10 +68,12 @@ class XThreadNone(object):
 
 #----------------------------------------------------------------------
 
+SIGNAL_BASE = QtCore.SIGNAL
+
 def SIGNAL(signal):
     match = re.match(r'^(?P<method>\w+)\(?(?P<args>[^\)]*)\)?$', str(signal))
     if not match:
-        return QtCore.SIGNAL(signal)
+        return SIGNAL_BASE(signal)
     
     method = match.group('method')
     args   = match.group('args')
@@ -79,7 +81,7 @@ def SIGNAL(signal):
     args   = re.sub(r'\bobject\b', 'QVariant', args)
     
     new_signal = '%s(%s)' % (method, args)
-    return QtCore.SIGNAL(new_signal)
+    return SIGNAL_BASE(new_signal)
 
 #----------------------------------------------------------
 
@@ -239,8 +241,6 @@ def init(scope):
     scope['QtWebKit'] = lazy_import('PySide.QtWebKit')
     scope['QtNetwork'] = lazy_import('PySide.QtNetwork')
     scope['QtXml'] = lazy_import('PySide.QtXml')
-    scope['QtDesigner'] = lazy_import('PySide.QtDesigner')
-    scope['Qsci'] = lazy_import('PySide.QSsci')
     
     scope['uic'] = Uic()
     scope['rcc_exe'] = 'pyside-rcc.exe'

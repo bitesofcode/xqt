@@ -140,6 +140,7 @@ def init(scope):
     QtCore.Slot = Slot
     QtCore.Property = QtCore.pyqtProperty
     QtCore.SIGNAL = SIGNAL
+    QtCore.__version__ = QtCore.QT_VERSION_STR
 
     if SIP_VERSION == '2':
         QtCore.QStringList = list
