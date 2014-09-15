@@ -224,6 +224,29 @@ class Uic(object):
         QtCore.QMetaObject.connectSlotsByName(ui)
         return ui
 
+class QDialog(QtGui.QDialog):
+    def __init__(self, *args):
+        super(QDialog, self).__init__(*args)
+
+        self._centered = False
+
+    def showEvent(self, event):
+        """
+        Displays this dialog, centering on its parent.
+
+        :param      event | <QtCore.QShowEvent>
+        """
+        super(QDialog, self).showEvent(event)
+
+        if not self._centered:
+            self._centered = True
+            try:
+                center = self.parent().geometry().center()
+            except AttributeError:
+                return
+            else:
+                self.move(center.x() - self.width() / 2, center.y() - self.height() / 2)
+
 #----------------------------------------------------------------------
 
 def init(scope):
@@ -234,6 +257,7 @@ def init(scope):
     """
     # define wrapper compatibility symbols
     QtCore.THREADSAFE_NONE = XThreadNone()
+    QtGui.QDialog = QDialog
     
     # define the importable symbols
     scope['QtCore'] = QtCore
