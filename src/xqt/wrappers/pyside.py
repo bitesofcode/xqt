@@ -277,4 +277,5 @@ def init(scope):
     QtCore.QDateTime.toPyDateTime = lambda x: x.toPython()
     QtCore.QTime.toPyTime = lambda x: x.toPython()
     QtCore.QStringList = list
+    QtCore.QString = unicode
 

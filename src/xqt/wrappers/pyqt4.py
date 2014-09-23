@@ -144,4 +144,5 @@ def init(scope):
 
     if SIP_VERSION == '2':
         QtCore.QStringList = list
+        QtCore.QString = unicode
 
