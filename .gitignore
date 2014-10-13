@@ -3,3 +3,5 @@
 /src/projex_xqt.egg-info
 /src/dist
 *.pyc
+/bin/*.exe
+/bin/*.zip

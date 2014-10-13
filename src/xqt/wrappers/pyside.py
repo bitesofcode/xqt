@@ -149,6 +149,8 @@ class UiLoader(QtUiTools.QUiLoader):
         # create a widget off one of our dynamic classes
         if className in self.dynamicWidgets:
             widget = self.dynamicWidgets[className](parent)
+            if parent:
+                widget.setPalette(parent.palette())
             widget.setObjectName(name)
             
             # hack fix on a QWebView (will crash app otherwise)
@@ -159,6 +161,8 @@ class UiLoader(QtUiTools.QUiLoader):
         # create a widget from the default system
         else:
             widget = super(UiLoader, self).createWidget(className, parent, name)
+            if parent:
+                widget.setPalette(parent.palette())
         
         if parent is None:
             return self._baseinstance
@@ -241,7 +245,8 @@ class QDialog(QtGui.QDialog):
         if not self._centered:
             self._centered = True
             try:
-                center = self.parent().geometry().center()
+                window = self.parent().window()
+                center = window.geometry().center()
             except AttributeError:
                 return
             else:
