@@ -33,13 +33,13 @@ from ..lazyload import lazy_import
 
 # define wrappers
 def py2q(py_object):
-    if QtCore.QT_VERSION < 264198:
+    if SIP_VERSION != '2' and QtCore.QT_VERSION < 264198:
         return QtCore.QVariant(py_object)
     else:
         return py_object
 
 def q2py(q_variant, default=None):
-    if not isinstance(q_variant, QtCore.QVariant):
+    if SIP_VERSION == '2' or not isinstance(q_variant, QtCore.QVariant):
         return q_variant
     elif QtCore.QT_VERSION < 264198:
         return q_variant.toPyObject() if not q_variant.isNull() else default
