@@ -33,7 +33,20 @@ import sys
 from . import errors
 from .lazyload import lazy_import
 
-QT_WRAPPER = os.environ.get('XQT_WRAPPER', 'PyQt4')
+try:
+    QT_WRAPPER = os.environ['XQT_WRAPPER']
+except KeyError:
+    for wrapper in ('PyQt4', 'PySide'):
+        try:
+            __import__(wrapper)
+        except ImportError:
+            continue
+        else:
+            QT_WRAPPER = wrapper
+            break
+
+    if not wrapper:
+        raise ImportError
 
 #----------------------------------------------------------------------
 
