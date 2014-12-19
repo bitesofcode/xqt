@@ -5,3 +5,7 @@
 *.pyc
 /bin/*.exe
 /bin/*.zip
+/src/xqt/*.pyo
+/src/xqt/core/*.pyo
+/src/xqt/gui/*.pyo
+/src/xqt/wrappers/*.pyo
