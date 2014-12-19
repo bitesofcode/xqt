@@ -8,11 +8,6 @@ try:
 except IOError:
     README = ''
 
-try:
-    REQUIREMENTS = xqt.__depends__
-except AttributeError:
-    REQUIREMENTS = []
-
 setup(
     name = 'xqt',
     version = '2.0.2',
@@ -26,8 +21,6 @@ setup(
     url = 'http://www.projexsoftware.com',
     include_package_data=True,
     packages = find_packages(),
-    install_requires = REQUIREMENTS,
-    tests_require = REQUIREMENTS,
     long_description= README,
     classifiers=[],
 )

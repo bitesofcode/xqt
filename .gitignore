@@ -9,3 +9,7 @@
 /src/xqt/core/*.pyo
 /src/xqt/gui/*.pyo
 /src/xqt/wrappers/*.pyo
+/src/xqt.egg-info/PKG-INFO
+/src/xqt.egg-info/SOURCES.txt
+/src/xqt.egg-info/dependency_links.txt
+/src/xqt.egg-info/top_level.txt
