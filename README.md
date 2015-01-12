@@ -1,4 +1,4 @@
-orb
+xqt
 ======================
 
 The xqt library is a wrapper system on top of the various Python Qt frameworks.
@@ -66,7 +66,7 @@ _Use with PySide_
 <type 'PySide.QtCore.Signal'>
 ```
 
-The `projexui` library is written on top of this architecture, so it can
+The [projexui](https://github.com/ProjexSoftware/projexui) library is written on top of this architecture, so it can
 be used with either PyQt4, or PySide.  For more examples on usage, you can
 refer to the widgets and plugins defined there.
 
