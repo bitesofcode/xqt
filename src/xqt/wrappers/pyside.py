@@ -272,7 +272,7 @@ def init(scope):
     scope['QtXml'] = lazy_import('PySide.QtXml')
     
     scope['uic'] = Uic()
-    scope['rcc_exe'] = 'pyside-rcc.exe'
+    scope['rcc_exe'] = 'pyside-rcc.exe' if sys.platform == 'win32' else 'pyside-rcc'
     
     # map overrides
     #QtCore.SIGNAL = SIGNAL
