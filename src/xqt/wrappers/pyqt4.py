@@ -129,7 +129,7 @@ def init(scope):
     scope['Qsci'] = lazy_import('PyQt4.Qsci')
     
     scope['uic'] = lazy_import('PyQt4.uic')
-    scope['rcc_exe'] = 'pyrcc4.exe'
+    scope['rcc_exe'] = 'pyrcc4'
     
     # map shared core properties
     QtCore.QDate.toPython = lambda x: x.toPyDate()
