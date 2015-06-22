@@ -16,3 +16,4 @@
 xqt.egg-info
 build
 dist
+_version.py
