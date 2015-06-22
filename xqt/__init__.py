@@ -19,13 +19,17 @@ __email__           = 'team@projexsoftware.com'
 
 #------------------------------------------------------------------------------
 
-# define version information (major,minor,maintanence)
-__major__   = 2
-__minor__   = 0
-__revision__ = 2
+# auto-generated version file from releasing
+try:
+    from ._version import __major__, __minor__, __revision__, __hash__
+except ImportError:
+    __major__ = 0
+    __minor__ = 0
+    __revision__ = 0
+    __hash__ = ''
 
-__version_info__   = (__major__, __minor__, __revision__)
-__version__        = '%s.%s' % (__major__, __minor__)
+__version_info__ = (__major__, __minor__, __revision__)
+__version__ = '{0}.{1}.{2}'.format(*__version_info__)
 
 import os
 import sys
